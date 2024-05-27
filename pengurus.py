@@ -1,5 +1,6 @@
 import koneksi
 import datetime
+import getpass
 import os
 import math
 from tabulate import tabulate
@@ -12,7 +13,8 @@ Selamat datang, {nama}
 [1] Tambahkan penyewaan luring
 [2] Konfirmasi pembayaran pelanggan
 [3] Perbarui status penyewaan
-[4] Logout
+[4] Ganti Password
+[5] Logout
     ''')
         pilihan = input('Masukan: ')
         match pilihan:
@@ -23,6 +25,8 @@ Selamat datang, {nama}
             case '3':
                 perbarui_status_penyewaan()
             case '4':
+                ganti_password_pengurus(id)
+            case '5':
                 break
 
 def tambah_penyewaan_luring(id_pengurus_rental):
@@ -254,3 +258,38 @@ Mengonfirmasi transaksi dengan id {id}. Lanjutkan?
     cur.close()
     conn.close()
     input('Berhasil! Jangan lupa untuk mengubah status penyewaan setelah pelanggan meminjam. Tekan enter untuk melanjutkan')    
+
+
+def ganti_password_pengurus(id_pengurus_rental):
+    conn = koneksi.create_connection()
+    cur = conn.cursor()
+    try:
+        # Meminta password baru
+        while True:
+            password_baru = getpass.getpass("Masukkan password baru: ")
+            password_baru2 = getpass.getpass("Masukkan password yang sama: ")
+
+            if password_baru == password_baru2:
+                query_update = "UPDATE pengurus_rental SET password = %s WHERE id_pengurus_rental = %s"
+                cur.execute(query_update, (password_baru, id_pengurus_rental))
+                conn.commit()
+                print('Password telah diganti. Tekan enter untuk lanjut.')
+                input()
+                break
+            else:
+                print('''
+1. Coba lagi
+2. Keluar
+''')
+                pilih = input("Masukkan pilihan: ")
+                if pilih == '1':
+                    continue
+                elif pilih == '2':
+                    break
+                else:
+                    print('Masukkan yang sesuai dengan opsi yang diberikan')
+    except Exception as e:
+        print(f"Error: {e}")
+    finally:
+        cur.close()
+        conn.close()

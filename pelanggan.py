@@ -24,7 +24,7 @@ Selamat datang di RehatSejenak, {nama}
             case '3':
                 lihat_status_transaksi(id)
             case '4':
-                ganti_password_setelah_login(id)
+                ganti_password_pelanggan(id)
             case '5':
                 break
 
@@ -233,7 +233,7 @@ Transaksi dilakukan dengan kode {kode}. Lanjutkan?
     input('Berhasil! Silahkan menunggu konfirmasi oleh pengurus rental. Tekan enter untuk melanjutkan')
 
 
-def ganti_password_setelah_login(id_pelanggan):
+def ganti_password_pelanggan(id_pelanggan):
     conn = koneksi.create_connection()
     cur = conn.cursor()
     try:
