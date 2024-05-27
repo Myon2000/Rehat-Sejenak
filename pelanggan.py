@@ -1,5 +1,6 @@
 import koneksi
 import datetime
+import getpass
 import os
 from tabulate import tabulate
 
@@ -11,7 +12,8 @@ Selamat datang di RehatSejenak, {nama}
 [1] Ajukan penyewaan daring
 [2] Lihat status penyewaan
 [3] Lihat status transaksi
-[4] Logout
+[4] Ganti Password
+[5] Logout
     ''')
         pilihan = input('Masukan: ')
         match pilihan:
@@ -22,6 +24,8 @@ Selamat datang di RehatSejenak, {nama}
             case '3':
                 lihat_status_transaksi(id)
             case '4':
+                ganti_password_setelah_login(id)
+            case '5':
                 break
 
 def ajukan_penyewaan_daring(id_pelanggan):
@@ -58,7 +62,7 @@ LEFT JOIN penyewaan p ON (
             a.append(i[2])
             a.append(i[1])
             if i[3]:
-                a.append(f'Tidak tersedia (hingga {i[3].strftime('%Y-%m-%d %H:%M')})')
+                a.append(f"Tidak tersedia (hingga {i[3].strftime('%Y-%m-%d %H:%M')})")
             else:
                 a.append('Tersedia')
             tabel.append(a)
@@ -227,3 +231,77 @@ Transaksi dilakukan dengan kode {kode}. Lanjutkan?
     cur.close()
     conn.close()
     input('Berhasil! Silahkan menunggu konfirmasi oleh pengurus rental. Tekan enter untuk melanjutkan')
+
+
+def ganti_password_setelah_login(id_pelanggan):
+    conn = koneksi.create_connection()
+    cur = conn.cursor()
+    try:
+        # Meminta password baru
+        while True:
+            password_baru = getpass.getpass("Masukkan password baru: ")
+            password_baru2 = getpass.getpass("Masukkan password yang sama: ")
+
+            if password_baru == password_baru2:
+                query_update = "UPDATE pelanggan SET password = %s WHERE id_pelanggan = %s"
+                cur.execute(query_update, (password_baru, id_pelanggan))
+                conn.commit()
+                print('Password telah diganti. Tekan enter untuk lanjut.')
+                input()
+                break
+            else:
+                print('''
+1. Coba lagi
+2. Keluar
+''')
+                pilih = input("Masukkan pilihan: ")
+                if pilih == '1':
+                    continue
+                elif pilih == '2':
+                    break
+                else:
+                    print('Masukkan yang sesuai dengan opsi yang diberikan')
+    except Exception as e:
+        print(f"Error: {e}")
+    finally:
+        cur.close()
+        conn.close()
+
+
+    #UPDATE
+# UPDATE nama_tabel SET nama_kolom = value _kolom
+# endog = f"UPDATE mata_kuliah SET matkul = %s, sks = %s, semester_id = %s"
+
+# # read_matkul(cur=cur)
+
+# endog_select = "SELECT * FROM mata_kuliah"
+# cur.execute(endog_select)
+# data = cur.fetchall()
+# for i in data:
+#     print(i)
+
+
+# id_matkul = input('Masukkan id mata kuliah yang ingin diupdate : ')
+# select_endog = "SELECT * FROM mata_kuliah WHERE id_matkul = id_matkul"
+# cur.execute(select_endog, (id_matkul))
+# data2 = cur.fetchone()
+# # if data2:
+# #     print('Data saat ini : ')
+# #     print (f'id mata kuliah saat ini : {data2[0]}')
+# #     print (f'mata kuliah saat ini : {data2[1]}')
+# #     print (f'semester saat ini : {data2[2]}')
+
+
+
+# nama_matkul = input(f"masukkan nama matkul : ") or data2[1]
+# jumlah_sks = int(input(f"masukkan jumlah sks : ")) or data2 [2]
+# semester_id = int(input(f"masukkan id semester : ")) or data2[3]
+
+# endog_update = f"UPDATE mata_kuliah SET matkul = %s, sks = %s, semester_id = %s WHERE id_matkul = %s"
+# cur.execute(query=endog_update, vars=(nama_matkul, jumlah_sks, semester_id, id_matkul))
+
+# conn.commit()
+# print(f'total baris yang diubah : {cur.rowcount}')
+
+# cur.close()
+# conn.close()

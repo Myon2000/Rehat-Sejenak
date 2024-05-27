@@ -55,7 +55,7 @@ def login_pelanggan():
     password = getpass.getpass('Masukkan password: ')
     try:
         # Menjalankan query untuk mendapatkan data pengguna
-        query_login = "SELECT id_pelanggan, nama FROM pelanggan WHERE %s in (nama, nomor_telepon, alamat_email) AND password = %s"
+        query_login = "SELECT id_pelanggan, nama FROM pelanggan WHERE %s IN (nama, nomor_telepon, alamat_email) AND password = %s"
         cur.execute(query_login, (username, password))
 
         # Mendapatkan hasil query
@@ -64,6 +64,7 @@ def login_pelanggan():
         if pelanggan:
             return {'id': pelanggan[0], 'nama': pelanggan[1]}
         else:
+            print("Login gagal! Username atau password salah.")
             return False
     except Exception as e:
         print(f"Error: {e}")

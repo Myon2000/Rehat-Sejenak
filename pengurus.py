@@ -216,7 +216,9 @@ ORDER BY t.tanggal_dibuat'''
 
     while True:
         id = input('Pilih id transaksi yang ingin dikonfirmasi: ')
-        if not id.isnumeric():
+        if id == '':
+            break
+        elif not id.isnumeric():
             print('id tidak valid!')
             continue
         query_select = 'SELECT id_pengurus_rental FROM transaksi WHERE id_transaksi = %s'
@@ -229,6 +231,7 @@ ORDER BY t.tanggal_dibuat'''
         elif transaksi[0]:
             print('Transaksi sudah dikonfirmasi!')
             continue
+
         break
 
     while True:
@@ -250,4 +253,4 @@ Mengonfirmasi transaksi dengan id {id}. Lanjutkan?
 
     cur.close()
     conn.close()
-    input('Berhasil! Jangan lupa untuk mengubah status penyewaan setelah pelanggan meminjam. Tekan enter untuk melanjutkan')
+    input('Berhasil! Jangan lupa untuk mengubah status penyewaan setelah pelanggan meminjam. Tekan enter untuk melanjutkan')    
