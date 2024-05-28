@@ -16,7 +16,8 @@ Selamat datang, {nama}
 [3] Perbarui status penyewaan
 [4] Ganti Password
 [5] Tambahkan pegawai baru
-[6] Logout
+[6] Hapus transaksi penyewaan
+[7] Logout
     ''')
         pilihan = input('Masukan: ')
         match pilihan:
@@ -30,7 +31,9 @@ Selamat datang, {nama}
                 ganti_password_pengurus(id)
             case '5':
                 login.registrasi_pengurus()
-            case '6':
+	    case '6':
+		hapus_transaks_penyewaan()
+            case '7':
                 break
 
 def tambah_penyewaan_luring(id_pengurus_rental):
@@ -304,3 +307,83 @@ def ganti_password_pengurus(id_pengurus_rental):
     finally:
         cur.close()
         conn.close()
+def hapus_transaks_penyewaan():
+    os.system('cls')
+    conn = koneksi.create_connection()
+    cur = conn.cursor()
+
+    # Menampilkan daftar transaksi yang belum dikonfirmasi
+    query_select = '''
+    SELECT t.id_transaksi, pel.nama, t.biaya, t.tanggal_dibuat, t.kode_transaksi, jk.nama_jenis
+    FROM transaksi t
+    JOIN penyewaan p ON (p.id_penyewaan = t.id_penyewaan)
+    JOIN pelanggan pel ON (pel.id_pelanggan = p.id_pelanggan)
+    JOIN konsol k ON (k.id_konsol = p.id_konsol)
+    JOIN jenis_konsol jk ON (jk.id_jenis_konsol = k.id_jenis_konsol)
+    WHERE t.id_pengurus_rental IS NULL
+    ORDER BY t.tanggal_dibuat'''
+
+    cur.execute(query_select)
+    list_transaksi = cur.fetchall()
+
+    if not list_transaksi:
+        print("Tidak ada transaksi yang belum dikonfirmasi.")
+        input("Tekan enter untuk melanjutkan.")
+        return
+
+    tabel = [['id', 'Nama pelanggan', 'Biaya', 'Tanggal dibuat', 'Kode transaksi', 'Konsol yang disewa']]
+
+    for i in list_transaksi:
+        tabel.append([
+            i[0],
+            i[1],
+            i[2],
+            i[3],
+            i[4] or '<belum dibayar>',
+            i[5]
+        ])
+    print(tabulate(tabel))
+
+    while True:
+        id = input('Pilih id transaksi yang ingin dihapus: ')
+        if not id.isnumeric():
+            print('id tidak valid!')
+            continue
+        query_select = 'SELECT id_transaksi FROM transaksi WHERE id_transaksi = %s AND id_pengurus_rental IS NULL'
+        cur.execute(query_select, (id,))
+        transaksi = cur.fetchone()
+
+        if not transaksi:
+            print('Transaksi tidak ditemukan atau sudah dikonfirmasi!')
+            continue
+        break
+
+    while True:
+        print(f'''
+Menghapus transaksi dengan id {id}. Lanjutkan?
+[1] Ya
+[2] Kembali
+''')
+        pilihan = input()
+        if pilihan == '2': return
+        elif pilihan == '1':
+            break
+        else:
+            print('Pilihan tidak valid!')
+
+    # Menghapus transaksi dan penyewaan terkait
+    query_delete_transaksi = 'DELETE FROM transaksi WHERE id_transaksi = %s'
+    cur.execute(query_delete_transaksi, (id,))
+    
+    query_delete_penyewaan = '''
+    DELETE FROM penyewaan 
+    WHERE id_penyewaan IN (
+        SELECT id_penyewaan FROM transaksi WHERE id_transaksi = %s
+    )'''
+    cur.execute(query_delete_penyewaan, (id,))
+    
+    conn.commit()
+
+    cur.close()
+    conn.close()
+    input('Berhasil dihapus! Tekan enter untuk melanjutkan.')
