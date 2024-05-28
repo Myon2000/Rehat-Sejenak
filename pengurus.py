@@ -3,6 +3,7 @@ import datetime
 import getpass
 import os
 import math
+import login
 from tabulate import tabulate
 
 def pengurus(id, nama):
@@ -14,7 +15,8 @@ Selamat datang, {nama}
 [2] Konfirmasi pembayaran pelanggan
 [3] Perbarui status penyewaan
 [4] Ganti Password
-[5] Logout
+[5] Tambahkan pegawai baru
+[6] Logout
     ''')
         pilihan = input('Masukan: ')
         match pilihan:
@@ -27,6 +29,8 @@ Selamat datang, {nama}
             case '4':
                 ganti_password_pengurus(id)
             case '5':
+                login.registrasi_pengurus()
+            case '6':
                 break
 
 def tambah_penyewaan_luring(id_pengurus_rental):
@@ -219,12 +223,17 @@ ORDER BY t.tanggal_dibuat'''
     print(tabulate(tabel))
 
     while True:
-        id = input('Pilih id transaksi yang ingin dikonfirmasi: ')
+        id = input('Pilih id transaksi yang ingin dikonfirmasi (tekan enter untuk membatalkan): ')
         if id == '':
-            break
+            print('Konfirmasi pembayaran dibatalkan. Tekan enter untuk melanjutkan.')
+            input()
+            cur.close()
+            conn.close()
+            return
         elif not id.isnumeric():
             print('id tidak valid!')
             continue
+
         query_select = 'SELECT id_pengurus_rental FROM transaksi WHERE id_transaksi = %s'
         cur.execute(query_select, (id,))
         transaksi = cur.fetchone()
@@ -245,7 +254,8 @@ Mengonfirmasi transaksi dengan id {id}. Lanjutkan?
 [2] Kembali
 ''')
         pilihan = input()
-        if pilihan == '2': continue
+        if pilihan == '2': 
+            return konfirmasi_pembayaran_pelanggan(id_pengurus_rental)
         elif pilihan == '1':
             break
         else:
@@ -257,7 +267,8 @@ Mengonfirmasi transaksi dengan id {id}. Lanjutkan?
 
     cur.close()
     conn.close()
-    input('Berhasil! Jangan lupa untuk mengubah status penyewaan setelah pelanggan meminjam. Tekan enter untuk melanjutkan')    
+    input('Berhasil! Jangan lupa untuk mengubah status penyewaan setelah pelanggan meminjam. Tekan enter untuk melanjutkan')
+   
 
 
 def ganti_password_pengurus(id_pengurus_rental):

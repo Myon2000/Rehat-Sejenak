@@ -27,6 +27,32 @@ def login_pengurus():
         cur.close()
         conn.close()
 
+def registrasi_pengurus():
+    conn = koneksi.create_connection()
+    cur = conn.cursor()
+
+    os.system('cls')
+    nama = input('Masukkan nama Anda: ')
+    nomor_telepon = input('Masukkan nomor telepon Anda: ')
+    alamat_email = input('Masukkan alamat email Anda: ')
+    
+    while True:
+        password = getpass.getpass('Masukkan password pilihan Anda: ')
+        password2 = getpass.getpass('Konfirmasi password pilihan Anda: ')
+
+        if password == password2:
+            break
+        else:
+            print('Password tidak cocok! Silakan coba lagi.')
+
+    query_register = "INSERT INTO pengurus_rental (nama, nomor_telepon, alamat_email, password) VALUES (%s, %s, %s, %s)"
+    cur.execute(query_register, (nama, nomor_telepon, alamat_email, password))
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    input('Akun Anda berhasil dibuat! Tekan enter untuk kembali ke menu login.')
+
 def registrasi_pelanggan():
     conn = koneksi.create_connection()
     cur = conn.cursor()
@@ -36,7 +62,15 @@ def registrasi_pelanggan():
     nomor_telepon = input('Masukkan nomor telepon Anda: ')
     alamat_email = input('Masukkan alamat email Anda: ')
     alamat = input('Masukkan alamat Anda: ')
-    password = getpass.getpass('Masukkan password pilihan Anda: ')
+    
+    while True:
+        password = getpass.getpass('Masukkan password pilihan Anda: ')
+        password2 = getpass.getpass('Konfirmasi password pilihan Anda: ')
+
+        if password == password2:
+            break
+        else:
+            print('Password tidak cocok! Silakan coba lagi.')
 
     query_register = "INSERT INTO pelanggan (nama, nomor_telepon, alamat_email, alamat, password) VALUES (%s, %s, %s, %s, %s)"
     cur.execute(query_register, (nama, nomor_telepon, alamat_email, alamat, password))
