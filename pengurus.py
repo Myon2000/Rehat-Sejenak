@@ -31,8 +31,8 @@ Selamat datang, {nama}
                 ganti_password_pengurus(id)
             case '5':
                 login.registrasi_pengurus()
-	    case '6':
-		hapus_transaks_penyewaan()
+            case '6':
+                hapus_transaks_penyewaan()
             case '7':
                 break
 
@@ -158,7 +158,13 @@ join status_penyewaan sp ON sp.id_status_penyewaan = p.id_status_penyewaan'''
     print(tabulate(tabel))
 
     while True:
-        id = input('Pilih id penyewaan yang ingin diubah: ')
+        id = input('Pilih id penyewaan yang ingin diubah (tekan enter untuk membatalkan): ')
+        if id == '':
+            print('Pembaruan status penyewaan dibatalkan. Tekan enter untuk melanjutkan.')
+            input()
+            cur.close()
+            conn.close()
+            return
         if not id.isnumeric():
             print('id tidak valid!')
             continue
@@ -307,6 +313,7 @@ def ganti_password_pengurus(id_pengurus_rental):
     finally:
         cur.close()
         conn.close()
+
 def hapus_transaks_penyewaan():
     os.system('cls')
     conn = koneksi.create_connection()
@@ -345,11 +352,17 @@ def hapus_transaks_penyewaan():
     print(tabulate(tabel))
 
     while True:
-        id = input('Pilih id transaksi yang ingin dihapus: ')
+        id = input('Pilih id transaksi yang ingin dihapus (tekan enter untuk membatalkan): ')
+        if id == '':
+            print('Penghapusan transaksi dibatalkan. Tekan enter untuk melanjutkan.')
+            input()
+            cur.close()
+            conn.close()
+            return
         if not id.isnumeric():
             print('id tidak valid!')
             continue
-        query_select = 'SELECT id_transaksi FROM transaksi WHERE id_transaksi = %s AND id_pengurus_rental IS NULL'
+        query_select = 'SELECT id_transaksi, id_penyewaan FROM transaksi WHERE id_transaksi = %s AND id_pengurus_rental IS NULL'
         cur.execute(query_select, (id,))
         transaksi = cur.fetchone()
 
@@ -377,10 +390,8 @@ Menghapus transaksi dengan id {id}. Lanjutkan?
     
     query_delete_penyewaan = '''
     DELETE FROM penyewaan 
-    WHERE id_penyewaan IN (
-        SELECT id_penyewaan FROM transaksi WHERE id_transaksi = %s
-    )'''
-    cur.execute(query_delete_penyewaan, (id,))
+    WHERE id_penyewaan = %s'''
+    cur.execute(query_delete_penyewaan, (transaksi[1],))
     
     conn.commit()
 

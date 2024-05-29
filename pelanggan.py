@@ -44,7 +44,7 @@ def ajukan_penyewaan_daring(id_pelanggan):
 
     while True:
         query_select = """
-SELECT k.id_konsol, k.harga_sewa_per_jam, jk.nama_jenis, p.tanggal_akhir_sewa as tersedia_pada
+SELECT k.id_konsol, k.harga_sewa_per_hari, jk.nama_jenis, p.tanggal_akhir_sewa as tersedia_pada
 FROM konsol k
 JOIN jenis_konsol jk ON (jk.id_jenis_konsol = k.id_jenis_konsol)
 LEFT JOIN penyewaan p ON (
@@ -54,7 +54,7 @@ LEFT JOIN penyewaan p ON (
 
         cur.execute(query_select)
         list_konsol = cur.fetchall()
-        tabel = [['id', 'Jenis Konsol', 'Harga per Jam', 'Ketersediaan']]
+        tabel = [['id', 'Jenis Konsol', 'Harga per Hari', 'Ketersediaan']]
 
         for i in list_konsol:
             a = []
@@ -138,7 +138,7 @@ def lihat_status_penyewaan(id_pelanggan):
             WHERE p.id_pelanggan = %s'''
 
     cur.execute(query, (id_pelanggan,))
-    list_penyewaan = cur.fetchmany()
+    list_penyewaan = cur.fetchall()
 
     tabel = [['Tanggal awal sewa', 'Tanggal akhir sewa', 'Biaya', 'Konsol yang disewa', 'Status penyewaan', 'Status transaksi']]
     for i in list_penyewaan:
@@ -190,7 +190,13 @@ WHERE p.id_pelanggan = %s'''
     print(tabulate(tabel))
 
     while True:
-        id = input('Pilih id transaksi yang ingin dibayar: ')
+        id = input('Pilih id transaksi yang ingin dibayar (tekan enter untuk membatalkan): ')
+        if id == '':
+            print('Pembayaran transaksi dibatalkan. Tekan enter untuk melanjutkan.')
+            input()
+            cur.close()
+            conn.close()
+            return
         if not id.isnumeric():
             print('id tidak valid!')
             continue
