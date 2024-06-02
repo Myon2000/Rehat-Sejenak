@@ -85,7 +85,10 @@ LEFT JOIN penyewaan p ON (
         print(tabulate(tabel))
 
         konsol = input('Masukkan id konsol yang disewa: ')
-        if not konsol.isnumeric():
+        if konsol == '':
+            input('membatalkan menambah penyewaan luring')
+            return
+        elif not konsol.isnumeric():
             print('id tidak valid!')
             continue
 
